@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard</title>
+</head>
+<body>
+<h1>User Dashboard</h1>
+<div>
+    <h2>Account Balance</h2>
+    <p id="balance">Loading...</p>
+</div>
+<div>
+    <h2>Deposit</h2>
+    <form id="depositForm">
+        <label for="depositAmount">Amount:</label>
+        <input type="number" id="depositAmount" required>
+        <button type="submit">Deposit</button>
+    </form>
+</div>
+<div>
+    <h2>Withdraw</h2>
+    <form id="withdrawForm">
+        <label for="withdrawAmount">Amount:</label>
+        <input type="number" id="withdrawAmount" required>
+        <button type="submit">Withdraw</button>
+    </form>
+</div>
+<div id="result"></div>
+
+<script>
+    const accountId = 1; // Здесь укажите ID аккаунта, который нужно использовать
+
+    async function fetchBalance() {
+        try {
+            const response = await fetch(`http://localhost:8080/api/account/${accountId}`);
+            if (response.ok) {
+                const data = await response.json();
+                document.getElementById('balance').innerText = `Balance: ${data.balance}`;
+            } else {
+                throw new Error('Failed to fetch balance');
+            }
+        } catch (error) {
+            document.getElementById('result').innerText = `Error: ${error.message}`;
+        }
+    }
+
+    document.getElementById('depositForm').addEventListener('submit', async function(event) {
+        event.preventDefault();
+        const amount = document.getElementById('depositAmount').value;
+
+        try {
+            const response = await fetch(`http://localhost:8080/api/account/deposit?accountId=${accountId}&amount=${amount}`, {
+                method: 'POST'
+            });
+
+            if (response.ok) {
+                document.getElementById('result').innerText = 'Deposit successful';
+                fetchBalance(); // Обновить баланс после депозита
+            } else {
+                throw new Error('Failed to deposit');
+            }
+        } catch (error) {
+            document.getElementById('result').innerText = `Error: ${error.message}`;
+        }
+    });
+
+    document.getElementById('withdrawForm').addEventListener('submit', async function(event) {
+        event.preventDefault();
+        const amount = document.getElementById('withdrawAmount').value;
+
+        try {
+            const response = await fetch(`http://localhost:8080/api/account/withdraw?accountId=${accountId}&amount=${amount}`, {
+                method: 'POST'
+            });
+
+            if (response.ok) {
+                document.getElementById('result').innerText = 'Withdrawal successful';
+                fetchBalance(); // Обновить баланс после снятия
+            } else {
+                throw new Error('Failed to withdraw');
+            }
+        } catch (error) {
+            document.getElementById('result').innerText = `Error: ${error.message}`;
+        }
+    });
+
+    fetchBalance(); // Загрузить баланс при загрузке страницы
+</script>
+</body>
+</html>
