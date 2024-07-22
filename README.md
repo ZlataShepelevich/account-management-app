@@ -4,5 +4,5 @@
 
 Для основного доступа используйте http://localhost:8080/index.html
 
-Пользователи: user - password, user2 - password2
+Пользователи: user - password, user2 - password2  
 Admin: admin - password
