@@ -11,25 +11,19 @@
   <label for="username">Username:</label>
   <input type="text" id="username" name="username" required>
   <br>
+  <br>
   <label for="password">Password:</label>
   <input type="password" id="password" name="password" required>
   <br>
   <br>
   <button type="submit">Login</button>
 </form>
+<br>
 <button id="logoutButton">Logout</button>
 <div id="result"></div>
 
 <script>
   document.getElementById('logoutButton').addEventListener('click', async function() {
-    const token = localStorage.getItem('jwtToken');
-    await fetch('http://localhost:8080/api/logout', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    });
-
     localStorage.removeItem('jwtToken'); // Удаление JWT из localStorage
     sessionStorage.removeItem('jwtToken'); // Очистка sessionStorage
     document.cookie = "jwtToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"; // Очистка cookies
@@ -61,14 +55,10 @@
         role = data.role;
         const token = data.token;
         localStorage.setItem('jwtToken', token);
-        console.log(token);
+        localStorage.setItem('login', username);
 
         // Перенаправление в зависимости от роли
-        if (role === 'ROLE_ADMIN') {
-          window.location.href = '/admin.html';
-        } else {
-          window.location.href = '/user.html';
-        }
+        await fetchAndDisplayPage(token, role);
       } else {
         const error = await response.json();
         document.getElementById('result').innerText = `Error: ${error.message}`;
@@ -78,12 +68,31 @@
     }
   });
 
-  const token1 = localStorage.getItem('jwtToken'); // Или sessionStorage, если вы используете sessionStorage
-  if (!token1) {
-    console.log('No token found');
+  async function fetchAndDisplayPage(token, role) {
+    let url;
+    if (role === 'ROLE_ADMIN') {
+      url = 'http://localhost:8080/admin.html';
+    } else {
+      url = 'http://localhost:8080/user.html';
+    }
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'text/html'
+      }
+    });
+
+    if (response.ok) {
+      const html = await response.text();
+      document.open();
+      document.write(html);
+      document.close();
+    } else {
+      console.error('Error fetching page:', response.statusText);
+    }
   }
-  else console.log(token1);
-  console.log(token1);
 </script>
 </body>
 </html>

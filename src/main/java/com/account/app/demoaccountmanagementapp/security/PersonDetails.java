@@ -2,6 +2,7 @@ package com.account.app.demoaccountmanagementapp.security;
 
 import com.account.app.demoaccountmanagementapp.models.Person;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -17,7 +18,7 @@ public class PersonDetails implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singletonList(new SimpleGrantedAuthority(person.getRole()));
+        return AuthorityUtils.createAuthorityList(person.getRole());
     }
 
     @Override

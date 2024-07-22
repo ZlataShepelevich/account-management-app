@@ -79,4 +79,16 @@ public class AccountController {
         List<Account> accounts = accountService.findAllAccounts();
         return ResponseEntity.ok(accounts);
     }
+
+    @GetMapping("/login/{login}")
+    public ResponseEntity<?> getAccountIdByLogin(@PathVariable String login) {
+        Optional<Account> accountIdOpt = accountService.findByUsername(login);
+        if (accountIdOpt.isPresent()) {
+            Map<String, Integer> response = new HashMap<>();
+            response.put("accountId", accountIdOpt.get().getId());
+            return ResponseEntity.ok(response);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
 }

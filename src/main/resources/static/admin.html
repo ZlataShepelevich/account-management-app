@@ -39,6 +39,7 @@
 </table>
 
 <script>
+
   async function fetchAccounts() {
     try {
       const token = localStorage.getItem('jwtToken');
@@ -91,7 +92,7 @@
 
       if (response.ok) {
         alert('Account blocked successfully');
-        fetchAccounts(); // Refresh the accounts list
+        await fetchAccounts(); // Refresh the accounts list
       } else {
         console.error('Failed to block account:', response.statusText);
       }
@@ -112,7 +113,7 @@
 
       if (response.ok) {
         alert('Account unblocked successfully');
-        fetchAccounts(); // Refresh the accounts list
+        await fetchAccounts(); // Refresh the accounts list
       } else {
         console.error('Failed to unblock account:', response.statusText);
       }

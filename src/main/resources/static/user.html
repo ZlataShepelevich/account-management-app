@@ -30,11 +30,49 @@
 <div id="result"></div>
 
 <script>
-    const accountId = 1; // Здесь укажите ID аккаунта, который нужно использовать
+    let token = "";
+    let login = "";
+    let accountId = 1;
+
+    document.addEventListener('DOMContentLoaded', async (event) => {
+        token = localStorage.getItem('jwtToken');
+        login = localStorage.getItem('login');
+
+        if (!token) {
+            window.location.href = '/index.html';
+            return; // Прекращаем выполнение скрипта, если нет токена
+        }
+
+        try {
+            const response = await fetch(`http://localhost:8080/api/account/login/${login}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                accountId = data.accountId;
+            } else {
+                console.error('Failed to fetch account ID:', response.statusText);
+            }
+        } catch (error) {
+            console.error('Error during fetch:', error);
+        }
+
+        await fetchBalance(); // Загрузить баланс при загрузке страницы
+    });
+
 
     async function fetchBalance() {
         try {
-            const response = await fetch(`http://localhost:8080/api/account/${accountId}`);
+            const response = await fetch(`http://localhost:8080/api/account/${accountId}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
             if (response.ok) {
                 const data = await response.json();
                 document.getElementById('balance').innerText = `Balance: ${data.balance}`;
@@ -52,7 +90,10 @@
 
         try {
             const response = await fetch(`http://localhost:8080/api/account/deposit?accountId=${accountId}&amount=${amount}`, {
-                method: 'POST'
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
             });
 
             if (response.ok) {
@@ -72,7 +113,10 @@
 
         try {
             const response = await fetch(`http://localhost:8080/api/account/withdraw?accountId=${accountId}&amount=${amount}`, {
-                method: 'POST'
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
             });
 
             if (response.ok) {
@@ -85,8 +129,6 @@
             document.getElementById('result').innerText = `Error: ${error.message}`;
         }
     });
-
-    fetchBalance(); // Загрузить баланс при загрузке страницы
 </script>
 </body>
 </html>
